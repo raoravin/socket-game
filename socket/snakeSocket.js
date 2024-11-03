@@ -20,9 +20,23 @@ export const initSocket = (httpServer) => {
             io.to(data.gameCode).emit('playerJoined', data.playerName);
         });
 
-        socket.on('rollDice', (data) => {
-            io.to(data.gameCode).emit('diceRolled', { roll: data.roll });
+        socket.on('incrementCount', (data) => {
+            io.to(data.gameCode).emit('updateCount', data.count);
         });
+
+        // Listen for chat messages
+        socket.on('chatMessage', (data) => {
+            // Emit the chat message to all players in the game
+            io.to(data.gameCode).emit('chatMessage', { message: data.message });
+        });
+
+        // Listen for box hover events
+    socket.on('hoverBox', ({ gameCode, index, color }) => {
+        console.log(`Box ${index} hovered with color ${color} in game: ${gameCode}`);
+        // Emit the box color change to all clients in the game room
+        socket.to(gameCode).emit('boxColorUpdate', { index, color });
+    });
+
 
         socket.on('disconnect', () => {
             console.log('Client disconnected:', socket.id);
