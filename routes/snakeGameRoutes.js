@@ -17,22 +17,7 @@ const generateGameCode = () => {
 
 
 // Create a new game
-router.post('/create', async (req, res) => {
-    const { players } = req.body; // Expecting players from request body
-    const gameCode = generateGameCode();
-
-    try {
-        const newGame = new snakeGameModel({
-            code: gameCode,
-            players: players || [],
-        });
-        await newGame.save();
-        res.status(201).json({ code: gameCode });
-    } catch (error) {
-        console.error('Error creating game:', error);
-        res.status(400).json({ error: 'Failed to create game' });
-    }
-});
+router.post('/create',createGame );
 
 router.post('/join', joinGame);
 router.post('/:code/roll', rollDice);

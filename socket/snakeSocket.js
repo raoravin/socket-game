@@ -20,14 +20,8 @@ export const initSocket = (httpServer) => {
             io.to(data.gameCode).emit('playerJoined', data.playerName);
         });
 
-        socket.on('incrementCount', (data) => {
-            io.to(data.gameCode).emit('updateCount', data.count);
-        });
-
-        // Listen for chat messages
-        socket.on('chatMessage', (data) => {
-            // Emit the chat message to all players in the game
-            io.to(data.gameCode).emit('chatMessage', { message: data.message });
+        socket.on('rollDice', (data) => {
+            io.to(data.gameCode).emit('diceRolled', { roll: data.roll });
         });
 
         socket.on('disconnect', () => {

@@ -1,19 +1,25 @@
-// controllers/snakeGameController.js
 import SnakeGame from '../models/snakeGameModel.js';
+
+// Generate a unique game code
+const generateGameCode = () => {
+    return Math.random().toString(36).substring(2, 7).toUpperCase();
+};
 
 // Create a new game
 export const createGame = async (req, res) => {
-
-    console.log("hello");
-    
-    const { code } = req.body;
-    const game = new SnakeGame({ code });
+    const { players } = req.body;
+    const gameCode = generateGameCode();
 
     try {
-        await game.save();
-        res.status(201).json(game);
+        const newGame = new SnakeGame({
+            code: gameCode,
+            players: players || [],
+        });
+        await newGame.save();
+        res.status(201).json({ code: gameCode });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Error creating game:', error);
+        res.status(400).json({ error: 'Failed to create game' });
     }
 };
 
@@ -28,13 +34,11 @@ export const joinGame = async (req, res) => {
             return res.status(404).json({ message: 'Game not found' });
         }
 
-        // Check if the game is full (more than 4 players)
         if (game.players.length >= 4) {
             return res.status(400).json({ message: 'Game is full' });
         }
 
-        // Assign position based on the current number of players
-        const newPlayerPosition = game.players.length + 1; // 1-based index for positions
+        const newPlayerPosition = game.players.length + 1;
 
         game.players.push({ name, position: newPlayerPosition });
         await game.save();
@@ -44,7 +48,6 @@ export const joinGame = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
 
 // Roll the dice
 export const rollDice = async (req, res) => {
@@ -59,12 +62,12 @@ export const rollDice = async (req, res) => {
 
         const diceRoll = Math.floor(Math.random() * 6) + 1;
 
-        // Example logic for moving the player (you'll need to customize this)
+        // Move the player (first player for simplicity)
         if (game.players.length > 0) {
             const player = game.players[0]; // Assume first player for simplicity
             player.position += diceRoll;
 
-            // Check for winning condition (you'll need to adjust according to your game rules)
+            // Check for winning condition
             if (player.position >= 100) {
                 game.winner = player.name;
             }
